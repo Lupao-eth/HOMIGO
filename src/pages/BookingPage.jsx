@@ -81,7 +81,7 @@ const BookingPage = () => {
       await addDoc(collection(db, "users", user.uid, "bookings"), bookingData);
       setSuccess(true);
 
-      // Call GCash API
+      // Call CORS-safe GCash API
       const response = await axios.post(
         "https://homigo-phc4oi3qb-poshis-projects-f8227a07.vercel.app/api/gcash",
         {
@@ -90,16 +90,15 @@ const BookingPage = () => {
         }
       );
 
-      // ✅ Expect `link` from serverless function
-      const { link } = response.data;
-      if (link) {
-        setPaymentLink(link);
+      const { url } = response.data; // ✅ Our updated API returns `url`
+      if (url) {
+        setPaymentLink(url);
         setShowGCashModal(true);
       } else {
         alert("Payment link not found. Please try again later.");
       }
     } catch (error) {
-      console.error("Error during booking/payment:", error);
+      console.error("Error during booking/payment:", error.response?.data || error.message);
       alert("❌ There was an error processing your payment. Please try again.");
     } finally {
       setIsLoading(false);
