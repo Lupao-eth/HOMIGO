@@ -29,7 +29,7 @@ const BookingPage = () => {
   const [success, setSuccess] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ✅ Added states for GCash modal
+  // GCash modal states
   const [showGCashModal, setShowGCashModal] = useState(false);
   const [paymentLink, setPaymentLink] = useState("");
 
@@ -51,7 +51,6 @@ const BookingPage = () => {
     });
   };
 
-  // ✅ Updated handleReserve (Save → Show GCash → Redirect after button)
   const handleReserve = async () => {
     const user = auth.currentUser;
 
@@ -62,6 +61,7 @@ const BookingPage = () => {
     }
 
     setIsLoading(true);
+
     try {
       const bookingData = {
         municipality: municipality?.name || municipality,
@@ -77,18 +77,21 @@ const BookingPage = () => {
         userId: user.uid,
       };
 
+      // Save booking to Firestore
       await addDoc(collection(db, "users", user.uid, "bookings"), bookingData);
       setSuccess(true);
 
+      // Call GCash API
       const response = await axios.post(
-  "https://homigo-qd8tzd0ov-poshis-projects-f8227a07.vercel.app",
-  {
-    amount: 2799,
-    description: `Booking at ${municipality?.name || municipality} by ${user.email}`,
-  }
-);
-      const { link } = response.data;
+        "https://homigo-phc4oi3qb-poshis-projects-f8227a07.vercel.app/api/gcash",
+        {
+          amount: 2799,
+          description: `Booking at ${municipality?.name || municipality} by ${user.email}`,
+        }
+      );
 
+      // ✅ Expect `link` from serverless function
+      const { link } = response.data;
       if (link) {
         setPaymentLink(link);
         setShowGCashModal(true);
@@ -172,6 +175,7 @@ const BookingPage = () => {
 
       {/* MAIN CONTENT */}
       <div className="flex flex-col lg:flex-row gap-6">
+        {/* LEFT COLUMN */}
         <div className="flex-1 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" className="rounded-xl object-cover w-full h-48" />
@@ -257,7 +261,7 @@ const BookingPage = () => {
         </div>
       </div>
 
-      {/* ✅ GCash Modal */}
+      {/* GCash Modal */}
       {showGCashModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[999]">
           <div className="bg-white p-6 rounded-2xl shadow-lg w-80 text-center">

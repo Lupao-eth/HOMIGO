@@ -1,38 +1,32 @@
-const functions = require("firebase-functions");
-const axios = require("axios");
-const cors = require("cors")({ origin: true });
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * const {onCall} = require("firebase-functions/v2/https");
+ * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
 
-exports.createPaymentLink = functions.https.onRequest(async (req, res) => {
-  cors(req, res, async () => {
-    try {
-      const { amount, description } = req.body;
+const {setGlobalOptions} = require("firebase-functions");
+const {onRequest} = require("firebase-functions/https");
+const logger = require("firebase-functions/logger");
 
-      // ⚠️ Replace with your real PayMongo secret key
-      const PAYMONGO_SECRET_KEY = "sk_test_okgSjEoq2U4iiPAAboYC4qay";
+// For cost control, you can set the maximum number of containers that can be
+// running at the same time. This helps mitigate the impact of unexpected
+// traffic spikes by instead downgrading performance. This limit is a
+// per-function limit. You can override the limit for each function using the
+// `maxInstances` option in the function's options, e.g.
+// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
+// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
+// functions should each use functions.runWith({ maxInstances: 10 }) instead.
+// In the v1 API, each function can only serve one request per container, so
+// this will be the maximum concurrent request count.
+setGlobalOptions({ maxInstances: 10 });
 
-      const response = await axios.post(
-        "https://api.paymongo.com/v1/links",
-        {
-          data: {
-            attributes: {
-              amount: amount * 100, // PHP → centavos
-              description: description,
-            },
-          },
-        },
-        {
-          headers: {
-            Authorization: `Basic ${Buffer.from(PAYMONGO_SECRET_KEY + ":").toString("base64")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+// Create and deploy your first functions
+// https://firebase.google.com/docs/functions/get-started
 
-      const paymentLink = response.data.data.attributes.checkout_url;
-      res.status(200).send({ link: paymentLink });
-    } catch (error) {
-      console.error("Error creating payment link:", error.response?.data || error.message);
-      res.status(500).send({ error: "Failed to create payment link" });
-    }
-  });
-});
+// exports.helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
