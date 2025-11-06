@@ -7,6 +7,7 @@ const allowedOrigins = [
   "https://homigo-phc4oi3qb-poshis-projects-f8227a07.vercel.app",
   "https://homigo-5zji7touo-poshis-projects-f8227a07.vercel.app",
   "homigo-a1m67qgah-poshis-projects-f8227a07.vercel.app",
+  "https://homigo-snowy.vercel.app",
 ];
 
 // ✅ Helper: apply CORS headers
