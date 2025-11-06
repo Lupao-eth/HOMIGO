@@ -5,6 +5,7 @@ import axios from "axios";
 const allowedOrigins = [
   "http://localhost:5173",
   "https://homigo-phc4oi3qb-poshis-projects-f8227a07.vercel.app",
+  "https://homigo-5zji7touo-poshis-projects-f8227a07.vercel.app",
 ];
 
 // ✅ Helper: apply CORS headers
